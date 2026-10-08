@@ -1,4 +1,4 @@
-package com.sistama_processamentoNFiscal.notas;
+package com.sistema_processamentoNFiscal.notas;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
