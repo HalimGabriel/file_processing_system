@@ -8,4 +8,8 @@ public record NfeDTO(
         String cnpjEmitente,
         BigDecimal valorTotal,
         OffsetDateTime dataEmissao
-) {}
+) {
+    public String emitenteCnpj() {
+        return cnpjEmitente;
+    }
+}
