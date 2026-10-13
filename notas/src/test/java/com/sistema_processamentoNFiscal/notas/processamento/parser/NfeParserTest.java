@@ -1,14 +1,14 @@
 package com.sistema_processamentoNFiscal.notas.processamento.parser;
 
-import org.junit.Test;
+import com.sistema_processamentoNFiscal.notas.processamento.model.NotaFiscal;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
-import org.testng.Assert;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.LocalDate;
 
-import static org.testng.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NfeParserTest {
 
@@ -21,13 +21,13 @@ public class NfeParserTest {
         NfeParser parser = new NfeParser();
 
         // Act: Executa o parsing passando o InputStream do XML
-        NfeDTO nfeDto = parser.parse(inputStream);
+        NotaFiscal nota = parser.parse(inputStream);
 
         // Assert: Verifica se os dados foram extraídos perfeitamente usando JUnit 5
-        Assert.assertNotNull(nfeDto, "O DTO retornado não deveria ser nulo");
-        assertEquals("NFe35261000000000000000550010000000011000000014", nfeDto.chaveAcesso());
-        assertEquals("00000000000191", nfeDto.cnpjEmitente());
-        Assert.assertEquals(0, new BigDecimal("150.00").compareTo(nfeDto.valorTotal()), "O valor total deve ser 150.00");
-        Assert.assertTrue(OffsetDateTime.parse("2026-10-08T10:00:00-03:00").isEqual(nfeDto.dataEmissao()), "A data de emissão deve bater");
+        assertNotNull(nota, "A NotaFiscal retornada não deveria ser nula");
+        assertEquals("35261000000000000000550010000000011000000014", nota.chaveAcesso());
+        assertEquals("00000000000191", nota.emitenteCnpj());
+        assertEquals(0, new BigDecimal("150.00").compareTo(nota.valorTotal()), "O valor total deve ser 150.00");
+        assertEquals(LocalDate.parse("2026-10-08"), nota.dataEmissao(), "A data de emissão deve bater");
     }
 }
