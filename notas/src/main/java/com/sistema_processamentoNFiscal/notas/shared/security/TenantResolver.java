@@ -12,7 +12,7 @@ public class TenantResolver {
         var auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth instanceof JwtAuthenticationToken jwt) {
-            // No Cognito vem como "custom:tenantId", no mock podemos usar a mesma claim ou "tenantId"
+            // No Cognito vem como "custom:tenantId", no mock pode usar a mesma claim ou "tenantId"
             String tenant = jwt.getToken().getClaimAsString("custom:tenantId");
 
             if (tenant == null) {
