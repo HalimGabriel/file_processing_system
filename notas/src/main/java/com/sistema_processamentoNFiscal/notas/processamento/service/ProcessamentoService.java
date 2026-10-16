@@ -1,7 +1,7 @@
 package com.sistema_processamentoNFiscal.notas.processamento.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sistema_processamentoNFiscal.notas.processamento.model.NotaFiscal; // Ajustado para o seu model real
+import com.sistema_processamentoNFiscal.notas.processamento.model.NotaFiscal;
 import com.sistema_processamentoNFiscal.notas.processamento.parser.NfeParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ public class ProcessamentoService {
             log.info("Baixando arquivo do S3 - Bucket: {}, Key: {}", bucket, key);
 
             try (var in = s3.getObject(b -> b.bucket(bucket).key(key))) {
-                NotaFiscal nota = parser.parse(in); // Mudado de NfeDTO para NotaFiscal
+                NotaFiscal nota = parser.parse(in);
                 salvar(nota, key);
             }
         } catch (IOException e) {
@@ -65,8 +65,24 @@ public class ProcessamentoService {
         }
     }
 
-    private void salvar(NotaFiscal nota, String s3Key) { // Mudado de NfeDTO para NotaFiscal
-        String tenant = s3Key.split("/")[1];
+    private void salvar(NotaFiscal nota, String s3Key) {
+        String[] partes = s3Key.split("/");
+        if (partes.length < 2) {
+            throw new IllegalArgumentException("Chave do S3 fora do padrão estrutural esperado: " + s3Key);
+        }
+
+        String tenant = partes[1];
+
+        // Validação rigorosa do CNPJ (14 dígitos numéricos) para evitar contaminação ou path traversal
+        if (!tenant.matches("\\d{14}")) {
+            throw new IllegalStateException("Tenant inválido ou malformado na chave do S3: " + s3Key);
+        }
+
+        // Opcional de Negócio: Verifica se o CNPJ do emitente do XML confere com o tenant da pasta do S3
+        if (!nota.emitenteCnpj().equals(tenant)) {
+            log.warn("Alerta de segurança: O CNPJ do emitente ({}) diverge do tenant da pasta ({})", nota.emitenteCnpj(), tenant);
+        }
+
         var item = Map.of(
                 "PK", AttributeValue.fromS("TENANT#" + tenant),
                 "SK", AttributeValue.fromS("NOTA#" + nota.chaveAcesso()),
